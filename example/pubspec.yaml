@@ -1,5 +1,6 @@
 name: flutter_linkify_example
 description: flutter_linkify example
+publish_to: 'none'
 
 version: 1.0.0+1
 
@@ -12,7 +13,9 @@ dependencies:
   url_launcher: ^6.1.0
   flutter_linkify:
     path: ..
-  linkify: ^5.0.0
+  # linkify: ^5.0.0
+  linkify:
+    path: ../../linkify
 
 flutter:
   uses-material-design: true

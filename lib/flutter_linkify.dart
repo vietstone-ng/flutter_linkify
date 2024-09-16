@@ -1,5 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_highlighter/theme_map.dart';
+import 'package:highlighter/highlighter.dart';
 import 'package:linkify/linkify.dart';
 
 export 'package:linkify/linkify.dart'
@@ -13,6 +15,12 @@ export 'package:linkify/linkify.dart'
         UrlLinkifier,
         EmailElement,
         EmailLinkifier;
+
+final theme = themeMap['a11y-dark'] ?? {};
+const _defaultFontFamily = 'monospace';
+const _rootKey = 'root';
+const _defaultFontColor = Color(0xff000000);
+const _defaultBackgroundColor = Color(0xffffffff);
 
 /// Callback clicked link
 typedef LinkCallback = void Function(LinkableElement link);
@@ -348,24 +356,110 @@ List<InlineSpan>? buildTextSpanChildren(
   TextStyle? linkStyle,
   LinkCallback? onOpen,
   bool useMouseRegion = false,
-}) =>
-    [
-      for (var element in elements)
-        if (element is LinkableElement)
-          TextSpan(
-            text: element.text,
-            style: linkStyle,
-            recognizer: onOpen != null
-                ? (TapGestureRecognizer()..onTap = () => onOpen(element))
-                : null,
-            mouseCursor: useMouseRegion ? SystemMouseCursors.click : null,
-          )
-        else
-          TextSpan(
-            text: element.text,
-            style: style,
+}) {
+  List<InlineSpan> children = [];
+  for (var element in elements) {
+    if (element is LinkableElement) {
+      children.add(TextSpan(
+        text: element.text,
+        style: linkStyle,
+        recognizer: onOpen != null
+            ? (TapGestureRecognizer()..onTap = () => onOpen(element))
+            : null,
+        mouseCursor: useMouseRegion ? SystemMouseCursors.click : null,
+      ));
+    } else if (element is CodeBlockElement) {
+      final bgColor =
+          theme[_rootKey]?.backgroundColor ?? _defaultBackgroundColor;
+      var textStyle = TextStyle(
+        fontFamily: _defaultFontFamily,
+        color: theme[_rootKey]?.color ?? _defaultFontColor,
+        backgroundColor: bgColor,
+      );
+
+      final source = element.code;
+      final language = element.language;
+
+      if (element.isTripleBackticks) {
+        // generate a code block with triple backticks
+        children.add(WidgetSpan(
+            child: Container(
+          margin: const EdgeInsets.all(4),
+          padding: const EdgeInsets.all(8),
+          color: bgColor,
+          child: RichText(
+            text: TextSpan(
+              style: textStyle,
+              children: _convert(
+                highlight
+                    .parse(source, language: language, autoDetection: true)
+                    .nodes!,
+              ),
+            ),
           ),
-    ];
+        )));
+      } else {
+        // generate inline code, add 2 spaces before and after
+        children.add(TextSpan(
+          style: textStyle,
+          children: [
+            TextSpan(text: '\u00A0', style: textStyle),
+            ..._convert(
+                highlight
+                    .parse(source, language: language, autoDetection: true)
+                    .nodes!,
+                parentStyle: textStyle),
+            TextSpan(text: '\u00A0', style: textStyle),
+          ],
+        ));
+      }
+    } else if (element is TextElement) {
+      children.add(TextSpan(
+        text: element.text,
+        style: style,
+      ));
+    }
+  }
+  return children;
+}
+
+List<TextSpan> _convert(List<Node> nodes, {TextStyle? parentStyle}) {
+  List<TextSpan> spans = [];
+  var currentSpans = spans;
+  List<List<TextSpan>> stack = [];
+
+  traverse(Node node) {
+    var inlineStyle = node.className == null ? null : theme[node.className!];
+    TextStyle? style;
+    if (parentStyle != null) {
+      style = parentStyle.merge(inlineStyle);
+    } else {
+      style = inlineStyle;
+    }
+
+    if (node.value != null) {
+      currentSpans.add(TextSpan(text: node.value, style: style));
+    } else if (node.children != null) {
+      List<TextSpan> tmp = [];
+      currentSpans.add(TextSpan(children: tmp, style: style));
+      stack.add(currentSpans);
+      currentSpans = tmp;
+
+      for (var n in node.children!) {
+        traverse(n);
+        if (n == node.children!.last) {
+          currentSpans = stack.isEmpty ? spans : stack.removeLast();
+        }
+      }
+    }
+  }
+
+  for (var node in nodes) {
+    traverse(node);
+  }
+
+  return spans;
+}
 
 class LinkifySpan extends TextSpan {
   LinkifySpan({

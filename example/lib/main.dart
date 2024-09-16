@@ -5,9 +5,11 @@ import 'dart:async';
 
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(LinkifyExample());
+void main() => runApp(const LinkifyExample());
 
 class LinkifyExample extends StatelessWidget {
+  const LinkifyExample({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,7 +17,7 @@ class LinkifyExample extends StatelessWidget {
       title: 'flutter_linkify example',
       home: Scaffold(
         appBar: AppBar(
-          title: Text('flutter_linkify example'),
+          title: const Text('flutter_linkify example'),
         ),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -28,19 +30,27 @@ class LinkifyExample extends StatelessWidget {
                     text:
                         "Made by https://cretezy.com\n\nMail: example@gmail.com",
                   ),
-                  SizedBox(height: 64),
+                  const SizedBox(height: 64),
                   SelectableLinkify(
                     onOpen: _onOpen,
                     text:
                         "Made by https://cretezy.com\n\nMail: example@gmail.com",
                   ),
-                  SizedBox(height: 64),
-                  Linkify(
+                  const SizedBox(height: 64),
+                  const Linkify(
                     onOpen: print,
-                    text: "@Cretezy +123456789",
+                    // text: "@Cretezy +123456789"
+                    text:
+                        "Here is some Dart code:\nInline: `void main() => runApp(const LinkifyExample());`\nBlock: \n```dart\nvoid main() => runApp(const LinkifyExample());\n```",
+                    // text:
+                    //     "Here is some Dart code:\n```dart\nvoid main() => runApp(const LinkifyExample());\n```",
+                    // text:
+                    // "Here is some Dart code:\nInline: `void main() => runApp(const LinkifyExample());`",
+
                     linkifiers: [
-                      const UserTagLinkifier(),
-                      const PhoneNumberLinkifier(),
+                      UserTagLinkifier(),
+                      PhoneNumberLinkifier(),
+                      CodeBlockLinkifier(),
                     ],
                   ),
                 ],
