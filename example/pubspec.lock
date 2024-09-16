@@ -53,9 +53,11 @@ packages:
   linkify:
     dependency: "direct main"
     description:
-      path: "../../linkify"
-      relative: true
-    source: path
+      path: "."
+      ref: "89cf6f3c9fbac9f8a77189effa33dad2e725676f"
+      resolved-ref: "89cf6f3c9fbac9f8a77189effa33dad2e725676f"
+      url: "https://github.com/vietstone-ng/linkify.git"
+    source: git
     version: "5.0.0"
   material_color_utilities:
     dependency: transitive

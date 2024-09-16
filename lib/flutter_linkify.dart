@@ -395,21 +395,25 @@ List<InlineSpan>? buildTextSpanChildren(
       if (element.isTripleBackticks) {
         // generate a code block with triple backticks
         children.add(WidgetSpan(
-            child: Container(
-          margin: const EdgeInsets.all(4),
-          padding: const EdgeInsets.all(8),
-          color: bgColor,
-          child: RichText(
-            text: TextSpan(
-              style: textStyle,
-              children: _convert(
-                highlight
-                    .parse(source, language: language, autoDetection: true)
-                    .nodes!,
+          child: Container(
+            margin: const EdgeInsets.all(4),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: bgColor,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: RichText(
+              text: TextSpan(
+                style: textStyle,
+                children: _convert(
+                  highlight
+                      .parse(source, language: language, autoDetection: true)
+                      .nodes!,
+                ),
               ),
             ),
           ),
-        )));
+        ));
       } else {
         // generate inline code, add 2 spaces before and after
         children.add(TextSpan(
