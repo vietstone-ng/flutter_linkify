@@ -16,7 +16,7 @@ export 'package:linkify/linkify.dart'
         EmailElement,
         EmailLinkifier;
 
-final theme = themeMap['a11y-dark'] ?? {};
+final _codeTheme = themeMap['a11y-light'] ?? {};
 const _defaultFontFamily = 'monospace';
 const _rootKey = 'root';
 const _defaultFontColor = Color(0xff000000);
@@ -82,6 +82,8 @@ class Linkify extends StatelessWidget {
 
   final bool useMouseRegion;
 
+  final String? codeThemeKey;
+
   const Linkify({
     Key? key,
     required this.text,
@@ -103,6 +105,7 @@ class Linkify extends StatelessWidget {
     this.textWidthBasis = TextWidthBasis.parent,
     this.textHeightBehavior,
     this.useMouseRegion = true,
+    this.codeThemeKey,
   }) : super(key: key);
 
   @override
@@ -125,6 +128,7 @@ class Linkify extends StatelessWidget {
               decoration: TextDecoration.underline,
             )
             .merge(linkStyle),
+        codeThemeKey: codeThemeKey,
       ),
       textAlign: textAlign,
       textDirection: textDirection,
@@ -234,41 +238,44 @@ class SelectableLinkify extends StatelessWidget {
 
   final bool useMouseRegion;
 
-  const SelectableLinkify({
-    Key? key,
-    required this.text,
-    this.linkifiers = defaultLinkifiers,
-    this.onOpen,
-    this.options = const LinkifyOptions(),
-    // TextSpan
-    this.style,
-    this.linkStyle,
-    // RichText
-    this.textAlign,
-    this.textDirection,
-    this.minLines,
-    this.maxLines,
-    // SelectableText
-    this.focusNode,
-    this.textScaleFactor = 1.0,
-    this.strutStyle,
-    this.showCursor = false,
-    this.autofocus = false,
-    this.contextMenuBuilder,
-    this.cursorWidth = 2.0,
-    this.cursorRadius,
-    this.cursorColor,
-    this.dragStartBehavior = DragStartBehavior.start,
-    this.enableInteractiveSelection = true,
-    this.onTap,
-    this.scrollPhysics,
-    this.textWidthBasis,
-    this.textHeightBehavior,
-    this.cursorHeight,
-    this.selectionControls,
-    this.onSelectionChanged,
-    this.useMouseRegion = false,
-  }) : super(key: key);
+  final String? codeThemeKey;
+
+  const SelectableLinkify(
+      {Key? key,
+      required this.text,
+      this.linkifiers = defaultLinkifiers,
+      this.onOpen,
+      this.options = const LinkifyOptions(),
+      // TextSpan
+      this.style,
+      this.linkStyle,
+      // RichText
+      this.textAlign,
+      this.textDirection,
+      this.minLines,
+      this.maxLines,
+      // SelectableText
+      this.focusNode,
+      this.textScaleFactor = 1.0,
+      this.strutStyle,
+      this.showCursor = false,
+      this.autofocus = false,
+      this.contextMenuBuilder,
+      this.cursorWidth = 2.0,
+      this.cursorRadius,
+      this.cursorColor,
+      this.dragStartBehavior = DragStartBehavior.start,
+      this.enableInteractiveSelection = true,
+      this.onTap,
+      this.scrollPhysics,
+      this.textWidthBasis,
+      this.textHeightBehavior,
+      this.cursorHeight,
+      this.selectionControls,
+      this.onSelectionChanged,
+      this.useMouseRegion = false,
+      this.codeThemeKey})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -290,6 +297,7 @@ class SelectableLinkify extends StatelessWidget {
             )
             .merge(linkStyle),
         useMouseRegion: useMouseRegion,
+        codeThemeKey: codeThemeKey,
       ),
       textAlign: textAlign,
       textDirection: textDirection,
@@ -338,6 +346,7 @@ TextSpan buildTextSpan(
   TextStyle? linkStyle,
   LinkCallback? onOpen,
   bool useMouseRegion = false,
+  String? codeThemeKey,
 }) =>
     TextSpan(
       children: buildTextSpanChildren(
@@ -346,6 +355,7 @@ TextSpan buildTextSpan(
         linkStyle: linkStyle,
         onOpen: onOpen,
         useMouseRegion: useMouseRegion,
+        codeThemeKey: codeThemeKey,
       ),
     );
 
@@ -356,6 +366,7 @@ List<InlineSpan>? buildTextSpanChildren(
   TextStyle? linkStyle,
   LinkCallback? onOpen,
   bool useMouseRegion = false,
+  String? codeThemeKey,
 }) {
   List<InlineSpan> children = [];
   for (var element in elements) {
@@ -369,11 +380,12 @@ List<InlineSpan>? buildTextSpanChildren(
         mouseCursor: useMouseRegion ? SystemMouseCursors.click : null,
       ));
     } else if (element is CodeBlockElement) {
+      final codeTheme = themeMap[codeThemeKey] ?? _codeTheme;
       final bgColor =
-          theme[_rootKey]?.backgroundColor ?? _defaultBackgroundColor;
+          codeTheme[_rootKey]?.backgroundColor ?? _defaultBackgroundColor;
       var textStyle = TextStyle(
         fontFamily: _defaultFontFamily,
-        color: theme[_rootKey]?.color ?? _defaultFontColor,
+        color: codeTheme[_rootKey]?.color ?? _defaultFontColor,
         backgroundColor: bgColor,
       );
 
@@ -429,7 +441,8 @@ List<TextSpan> _convert(List<Node> nodes, {TextStyle? parentStyle}) {
   List<List<TextSpan>> stack = [];
 
   traverse(Node node) {
-    var inlineStyle = node.className == null ? null : theme[node.className!];
+    var inlineStyle =
+        node.className == null ? null : _codeTheme[node.className!];
     TextStyle? style;
     if (parentStyle != null) {
       style = parentStyle.merge(inlineStyle);

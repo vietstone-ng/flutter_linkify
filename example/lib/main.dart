@@ -52,6 +52,8 @@ class LinkifyExample extends StatelessWidget {
                       PhoneNumberLinkifier(),
                       CodeBlockLinkifier(),
                     ],
+                    // codeThemeKey: 'an-old-hope',
+                    codeThemeKey: 'a11y-light',
                   ),
                 ],
               ),
