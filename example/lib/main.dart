@@ -5,7 +5,10 @@ import 'dart:async';
 
 import 'package:url_launcher/url_launcher.dart';
 
-void main() => runApp(const LinkifyExample());
+void main() {
+  Linkify.initEngine();
+  runApp(const LinkifyExample());
+}
 
 class LinkifyExample extends StatelessWidget {
   const LinkifyExample({Key? key}) : super(key: key);
@@ -41,19 +44,19 @@ class LinkifyExample extends StatelessWidget {
                     onOpen: print,
                     // text: "@Cretezy +123456789"
                     text:
-                        "Here is some Dart code:\nInline: `void main() => runApp(const LinkifyExample());`\nBlock: \n```dart\nvoid main() => runApp(const LinkifyExample());\n```",
+                        "Here is some Dart code:\nInline: `void main() => runApp(const LinkifyExample());`\nBlock: \n```\nvoid main() => runApp(const LinkifyExample());\n```\n\nDart: \n```dart\nvoid main() => runApp(const LinkifyExample());\n```",
                     // text:
                     //     "Here is some Dart code:\n```dart\nvoid main() => runApp(const LinkifyExample());\n```",
                     // text:
                     // "Here is some Dart code:\nInline: `void main() => runApp(const LinkifyExample());`",
 
                     linkifiers: [
+                      CodeBlockLinkifier(),
                       UserTagLinkifier(),
                       PhoneNumberLinkifier(),
-                      CodeBlockLinkifier(),
                     ],
-                    // codeThemeKey: 'an-old-hope',
-                    codeThemeKey: 'a11y-light',
+                    codeThemeKey: 'an-old-hope',
+                    // codeThemeKey: 'a11y-light',
                   ),
                 ],
               ),

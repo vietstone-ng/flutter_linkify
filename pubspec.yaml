@@ -12,14 +12,12 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  # linkify: ^5.0.0
-  flutter_highlighter: ^0.1.1
-  highlighter: ^0.1.1
+  re_highlight: ^0.0.3
   linkify:
     # path: ../linkify
     git:
       url: https://github.com/vietstone-ng/linkify.git
-      ref: 89cf6f3c9fbac9f8a77189effa33dad2e725676f
+      ref: 3196671795d16383d3f354431d0c5665226a36c8
 
 dev_dependencies:
   test: ^1.0.0

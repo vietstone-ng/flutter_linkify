@@ -1,8 +1,10 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_highlighter/theme_map.dart';
-import 'package:highlighter/highlighter.dart';
 import 'package:linkify/linkify.dart';
+import 'package:re_highlight/languages/all.dart';
+import 'package:re_highlight/re_highlight.dart';
+import 'package:re_highlight/styles/a11y-light.dart';
+import 'package:re_highlight/styles/all.dart';
 
 export 'package:linkify/linkify.dart'
     show
@@ -16,17 +18,28 @@ export 'package:linkify/linkify.dart'
         EmailElement,
         EmailLinkifier;
 
-final _codeTheme = themeMap['a11y-light'] ?? {};
+const _defaultTheme = a11YLightTheme;
 const _defaultFontFamily = 'monospace';
 const _rootKey = 'root';
 const _defaultFontColor = Color(0xff000000);
 const _defaultBackgroundColor = Color(0xffffffff);
+
+late final Highlight _codeHighlighter;
+
+void _initCodeHighlighter() {
+  _codeHighlighter = Highlight();
+  _codeHighlighter.registerLanguages(builtinAllLanguages);
+}
 
 /// Callback clicked link
 typedef LinkCallback = void Function(LinkableElement link);
 
 /// Turns URLs into links
 class Linkify extends StatelessWidget {
+  static initEngine() {
+    _initCodeHighlighter();
+  }
+
   /// Text to be linkified
   final String text;
 
@@ -380,17 +393,25 @@ List<InlineSpan>? buildTextSpanChildren(
         mouseCursor: useMouseRegion ? SystemMouseCursors.click : null,
       ));
     } else if (element is CodeBlockElement) {
-      final codeTheme = themeMap[codeThemeKey] ?? _codeTheme;
+      final codeTheme = builtinAllThemes[codeThemeKey] ?? _defaultTheme;
       final bgColor =
           codeTheme[_rootKey]?.backgroundColor ?? _defaultBackgroundColor;
-      var textStyle = TextStyle(
+      var baseStyle = TextStyle(
         fontFamily: _defaultFontFamily,
         color: codeTheme[_rootKey]?.color ?? _defaultFontColor,
         backgroundColor: bgColor,
       );
 
       final source = element.code;
-      final language = element.language;
+      final language = element.language ?? '';
+
+      final highlighted = _codeHighlighter.highlightAuto(
+          source, language.isNotEmpty ? [language] : null);
+      final renderer = TextSpanRenderer(baseStyle, codeTheme);
+
+      highlighted.render(renderer);
+
+      final span = renderer.span ?? TextSpan(text: source, style: baseStyle);
 
       if (element.isTripleBackticks) {
         // generate a code block with triple backticks
@@ -402,30 +423,17 @@ List<InlineSpan>? buildTextSpanChildren(
               color: bgColor,
               borderRadius: BorderRadius.circular(4),
             ),
-            child: RichText(
-              text: TextSpan(
-                style: textStyle,
-                children: _convert(
-                  highlight
-                      .parse(source, language: language, autoDetection: true)
-                      .nodes!,
-                ),
-              ),
-            ),
+            child: RichText(text: span),
           ),
         ));
       } else {
         // generate inline code, add 2 spaces before and after
         children.add(TextSpan(
-          style: textStyle,
+          style: baseStyle,
           children: [
-            TextSpan(text: '\u00A0', style: textStyle),
-            ..._convert(
-                highlight
-                    .parse(source, language: language, autoDetection: true)
-                    .nodes!,
-                parentStyle: textStyle),
-            TextSpan(text: '\u00A0', style: textStyle),
+            const TextSpan(text: '\u00A0'),
+            span,
+            const TextSpan(text: '\u00A0'),
           ],
         ));
       }
@@ -437,45 +445,6 @@ List<InlineSpan>? buildTextSpanChildren(
     }
   }
   return children;
-}
-
-List<TextSpan> _convert(List<Node> nodes, {TextStyle? parentStyle}) {
-  List<TextSpan> spans = [];
-  var currentSpans = spans;
-  List<List<TextSpan>> stack = [];
-
-  traverse(Node node) {
-    var inlineStyle =
-        node.className == null ? null : _codeTheme[node.className!];
-    TextStyle? style;
-    if (parentStyle != null) {
-      style = parentStyle.merge(inlineStyle);
-    } else {
-      style = inlineStyle;
-    }
-
-    if (node.value != null) {
-      currentSpans.add(TextSpan(text: node.value, style: style));
-    } else if (node.children != null) {
-      List<TextSpan> tmp = [];
-      currentSpans.add(TextSpan(children: tmp, style: style));
-      stack.add(currentSpans);
-      currentSpans = tmp;
-
-      for (var n in node.children!) {
-        traverse(n);
-        if (n == node.children!.last) {
-          currentSpans = stack.isEmpty ? spans : stack.removeLast();
-        }
-      }
-    }
-  }
-
-  for (var node in nodes) {
-    traverse(node);
-  }
-
-  return spans;
 }
 
 class LinkifySpan extends TextSpan {

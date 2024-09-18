@@ -14,11 +14,15 @@ dependencies:
   flutter_linkify:
     path: ..
   # linkify: ^5.0.0
+  # linkify:
+  #   path: ../../linkify
+    # git:
+    #   url: https://github.com/vietstone-ng/linkify.git
+    #   ref: 89cf6f3c9fbac9f8a77189effa33dad2e725676f
+
+dependency_overrides:
   linkify:
-    # path: ../../linkify
-    git:
-      url: https://github.com/vietstone-ng/linkify.git
-      ref: 89cf6f3c9fbac9f8a77189effa33dad2e725676f
+    path: ../../linkify
 
 flutter:
   uses-material-design: true
