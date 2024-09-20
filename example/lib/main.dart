@@ -22,33 +22,35 @@ class LinkifyExample extends StatelessWidget {
         appBar: AppBar(
           title: const Text('flutter_linkify example'),
         ),
-        body: Column(
+        body: const Column(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             Center(
               child: Column(
                 children: [
+                  // Linkify(
+                  //   onOpen: _onOpen,
+                  //   text:
+                  //       "Made by https://cretezy.com\n\nMail: example@gmail.com",
+                  // ),
+                  // const SizedBox(height: 64),
+                  // SelectableLinkify(
+                  //   onOpen: _onOpen,
+                  //   text:
+                  //       "Made by https://cretezy.com\n\nMail: example@gmail.com",
+                  // ),
+                  SizedBox(height: 64),
                   Linkify(
-                    onOpen: _onOpen,
-                    text:
-                        "Made by https://cretezy.com\n\nMail: example@gmail.com",
-                  ),
-                  const SizedBox(height: 64),
-                  SelectableLinkify(
-                    onOpen: _onOpen,
-                    text:
-                        "Made by https://cretezy.com\n\nMail: example@gmail.com",
-                  ),
-                  const SizedBox(height: 64),
-                  const Linkify(
                     onOpen: print,
                     // text: "@Cretezy +123456789"
+                    // text:
+                    //     "Here is some Dart code:\nInline: `void main() => runApp(const LinkifyExample());`\nBlock: \n```\nvoid main() => runApp(const LinkifyExample());\n```\n\nDart: \n```dart\nvoid main() => runApp(const LinkifyExample());\n```",
                     text:
-                        "Here is some Dart code:\nInline: `void main() => runApp(const LinkifyExample());`\nBlock: \n```\nvoid main() => runApp(const LinkifyExample());\n```\n\nDart: \n```dart\nvoid main() => runApp(const LinkifyExample());\n```",
+                        "Dart block:\n```dart\nawait remoteConfig.fetchAndActivate();\n```\n"
+                        "Auto block:\n```\nawait remoteConfig.fetchAndActivate();\n```\n"
+                        "Inline: `await remoteConfig.fetchAndActivate();`",
                     // text:
-                    //     "Here is some Dart code:\n```dart\nvoid main() => runApp(const LinkifyExample());\n```",
-                    // text:
-                    // "Here is some Dart code:\nInline: `void main() => runApp(const LinkifyExample());`",
+                    // "Here is some Dart code:\nInline: `await remoteConfig.fetchAndActivate();`",
 
                     linkifiers: [
                       CodeBlockLinkifier(),

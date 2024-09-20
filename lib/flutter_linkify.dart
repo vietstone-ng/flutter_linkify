@@ -418,7 +418,8 @@ List<InlineSpan>? buildTextSpanChildren(
         children.add(WidgetSpan(
           child: Container(
             margin: const EdgeInsets.all(4),
-            padding: const EdgeInsets.all(8),
+            padding:
+                const EdgeInsets.only(left: 4, right: 4, top: 2, bottom: 4),
             decoration: BoxDecoration(
               color: bgColor,
               borderRadius: BorderRadius.circular(4),
